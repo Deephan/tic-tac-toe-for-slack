@@ -22,6 +22,12 @@ Note: Uncomment the last two lines of **game.py** to run the game in autoplay mo
 
 `g.startNewGame("Challenger", "Opponent", False)`
 
-The execution of the game would require you to make **POST** calls to the endpoint /tictactoe-play. Please note that manually execution is only for debugging purposes and may not be ideally suited for playing the game. The game works best on slack.
+The execution of the game would require you to make **POST** calls to the endpoint **/tictactoe-play**. Please note that manually execution is only for debugging purposes and may not be ideally suited for playing the game. The game works best on slack. 
+
+See screenshots: 
+
+
+https://github.com/Deephan/tic-tac-toe-for-slack/blob/master/Slack-commands-in-action.png
+https://github.com/Deephan/tic-tac-toe-for-slack/blob/master/Slack-game-result.png
 
 
