@@ -116,10 +116,7 @@ def api_message():
         opponent = None if slackResponse['text'] is "" else slackResponse['text']
         if opponent is not None and challenger is not None:
             obj["response_type"] = "in_channel"
-            status = challenger +" has challenged "+ opponent + " to a game of Tic-Tac-Toe!\n\n " + opponent + "'s decision pending..."
-            #serialized_state = "#########" # Initial state of the game. Is this needed?
-            #currentGame = Game()
-            #status = currentGame.startNewGame(challenger, opponent)
+            status = challenger +" has challenged "+ opponent + " to a game of Tic-Tac-Toe!\n\n " + opponent + "'s decision is pending..."
         else:
             status = "Challenge a slack user to start a new game.\n\n/tictactoe-challenge @user\n\n@user has to be on Slack!"
     else :
@@ -200,7 +197,6 @@ def getStatus(returnjson=True):
         # This is a BUG!
         # This might be counter intuitive, but status is called after play
         # When play had already been called the next and current players have already been swapped
-        #status = {"text": "Here is a sample text","attachments": [{"text":"Partly cloudy today and tomorrow"}]}
         status = status % currentGame.getCurrentTurn()
     elif currentGame is None and challenger is not None and opponent is not None:
         obj["response_type"] = "ephemeral"
