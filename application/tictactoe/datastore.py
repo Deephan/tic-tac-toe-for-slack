@@ -3,6 +3,8 @@
 
     Datastore module for the game of Tic-Tac-Toe
 
+    Note: This module currently does nothing. Work to be done to store the state of the game.
+
 '''
 
 class DataStore:

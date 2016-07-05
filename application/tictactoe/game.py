@@ -1,75 +1,9 @@
 '''
-    Notes:
+    game.py
 
-        * Alright, so this is going to the first scrape version of the game.
-        * Eventually ill bring in jinja2 for building the template.
-        * Next step would be creating the REST layer for slack integration.
-        * Then building the interface for slack.
+    Game module for Tic-Tac-Toe
 
-    Done:
-        * The initial version is going to be purely console interactive.
-
-
-    TO DO:
-        ** Unit tests
-        ** Revamp the architecture (Obviously lacking the expertise, since as an
-           architect this should essentially be the first step. But hey, this is
-           the start. The end? The day i deploy this app, ill be the pro.)
-        ** Migrate the beta project to the main cloud project
-
-    Skeleton:
-
-        Class Game:
-
-            This will be the main class.
-
-            * Members
-
-                (i) Class Board
-
-                        * Members
-                            .....
-
-                        * Methods:
-                            * Getters
-                            * Setters
-
-                (ii) Class Player
-
-                        * Members
-                            .....
-
-                        * Methods:
-                            * Getters
-                            * Setters
-
-                (iii) Score Board
-
-                        * Members
-                            .....
-
-                        * Methods:
-                            * Getters
-                            * Setters
-
-            * Methods:
-
-                (i)   start
-                (ii)  play
-                (iii) Getters
-                        * Status
-                        * result
-                (iv)  Setters
-                        * place
-
-
-        TEST CASES:
-
-        (i)   Playing the same move twice by the same/different opponent
-        (ii)  Incoming challenge while a game is in session
-        (iii) Print the status of an ongoing game
-        (iv)  Using a non-numeric character to play a move
-        (v)   Challenge a non-slack member
+    This is where the game context is created.
 
 '''
 from player import Player
@@ -300,6 +234,6 @@ class Game:
         return statusMsg
 
 
-
+# To Debug the game in autoplay mode, uncomment the following lines
 #g = Game()
 #g.startNewGame("Challenger", "Opponent", True)
