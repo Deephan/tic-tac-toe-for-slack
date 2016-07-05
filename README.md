@@ -27,7 +27,10 @@ The execution of the game would require you to make **POST** calls to the endpoi
 See screenshots: 
 
 
-https://github.com/Deephan/tic-tac-toe-for-slack/blob/master/Slack-commands-in-action.png
-https://github.com/Deephan/tic-tac-toe-for-slack/blob/master/Slack-game-result.png
+![alt text](https://github.com/Deephan/tic-tac-toe-for-slack/blob/master/Slack-commands-in-action.png)
+
+
+
+![alt text](https://github.com/Deephan/tic-tac-toe-for-slack/blob/master/Slack-game-result.png)
 
 
