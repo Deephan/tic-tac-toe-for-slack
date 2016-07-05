@@ -8,16 +8,7 @@ from application.tictactoe.player import Player
 # Note: We don't need to call run() since our application is embedded within
 # the App Engine WSGI application server.
 
-'''
-    TEST CASES:
 
-    (i)    /tictactoe-help
-    (ii)   Display the state of the board publicly on the channel
-    (iii)  User authentication using user_id
-    (iv)   Status also displays "your move"
-    (v)    Winner status message shouldn't display the next move
-
-'''
 resp = ""
 slackResponse={}
 currentGame = None
@@ -25,6 +16,8 @@ serialized_state = None
 challenger = None
 opponent = None
 
+
+# TO DO: Needs to be moved to the datastore module
 class State(ndb.Model):
     """   Stores the current state of the board   """
     board = ndb.StringProperty()
@@ -36,13 +29,6 @@ def hello():
     """Return a friendly HTTP greeting."""
     resp = "Health check"
     return "Hello World" if resp is True else "%s" % resp
-
-
-@app.route('/tictactoe')
-def play():
-    """   Return all the possible slash commands required to play the game   """
-    help_text = "You have the following options: \n\n - /tictactoe challenge @user (To challenge @user for a game)"
-    return help_text
 
 @app.route('/tictactoe-accept', methods = ['POST'])
 def accept():
@@ -115,6 +101,7 @@ def reject():
 
 @app.route('/tictactoe-challenge', methods = ['POST'])
 def api_message():
+    """   Challenge an opponent for a game of Tic-Tac-Toe  """
     global resp, slackResponse, currentGame, serialized_state, challenger, opponent
     status = None
     obj = {"response_type": "ephemeral"}
@@ -146,6 +133,7 @@ def api_message():
 # TO DO: merge routes
 @app.route('/tictactoe-play', methods = ['POST'])
 def place():
+    """   Start playing Tic-Tac-Toe by specifying position   """
     global resp, slackResponse, currentGame, serialized_state
     return_msg = "Not sure what the problem is.. Check the code."
     obj = {"response_type": "in_channel","text": return_msg}
@@ -165,7 +153,7 @@ def place():
         # pass the board to play before you can serialize the current state
         if len(states) > 0:
             for state in states:
-                lastState = deserializeBoard(state.board)
+                lastState = _deserializeBoard(state.board)
                 turns = state.moves
         else:
             lastState = [['#','#','#'],['#','#','#'],['#','#','#']]
@@ -180,7 +168,7 @@ def place():
             else:
                 currentState = currentGame.play(position, lastState, turns)
                 turns -= 1
-                serialized_state = serializeBoard(currentState)
+                serialized_state = _serializeBoard(currentState)
                 State(board = serialized_state, moves = turns).put()
                 return_msg = getStatus(False)
                 if currentGame.isGameComplete() is True or turns == 0:
@@ -194,28 +182,6 @@ def place():
         return_msg = "Sorry, no moves allowed!\n\nChallenge an opponent to start a new game!\n\nSlack /tictactoe-help for more details."
     obj["text"] = "%s" % return_msg
     return jsonify(obj)
-
-def serializeBoard(board):
-    state = ""
-    for row in board:
-        for col in row:
-            state += col
-    return state
-
-def deserializeBoard(state):
-    ROWS = COLS = 3
-    board = []
-    count = 0
-    while ROWS > 0:
-        row = []
-        while COLS > 0:
-            row.append(str(state[count]))
-            count += 1
-            COLS -= 1
-        board.append(row)
-        ROWS -= 1
-        COLS = 3
-    return board
 
 @app.route('/tictactoe-status', methods = ['POST'])
 def getStatus(returnjson=True):
@@ -266,52 +232,56 @@ def help():
     doc_str = "%s" % doc_str
     return jsonify({"response_type": "in_channel","text": doc_str})
 
-
-@app.route('/tictactoe-status')
-def status():
-    """   Returns the current status of the board and also the next player to make the move   """
-    global currentGame
-    status = "Current State of the game\n\n\n\t\t\t========= \n\t\t\t|  1  |  2  |  3  |\n\t\t\t"
-    status += "=========\n\t\t\t|  4  |  5  |  6  |\n\t\t\t"
-    status += "=========\n\t\t\t|  7  |  8  |  9  |\n\t\t\t=========\n\n\n\n"
-    status += "%s makes the current move"
-    return status % currentGame.getCurrentTurn()
-
-@app.route('/ttt')
-def chall():
-    """   Return all the possible slash commands required to play the game   """
-    global slackResponse, resp
-    response_str = "%s" % resp
-    '''lst = []
-    for st in response_str[20:-2].split(","):
-        lst.append(st.replace("(","").replace(")","").replace("u'","").replace("'","").lstrip())
-    slackResponse = {lst[i]:lst[i+1] for i in range(0, len(lst), 2)}'''
-    return "%s" % response_str
-
 @app.route('/currentMove')
 def getCurrentMove():
-    """   Return all the possible slash commands required to play the game   """
+    """   Return the player who owns the current turn   """
     global currentGame
     return currentGame.getCurrentTurn()
 
 @app.route('/nextMove')
 def getNextMove():
-    """   Return all the possible slash commands required to play the game   """
+    """   Return the player who will own the next turn   """
     global currentGame
     return currentGame.getNextTurn()
 
+# Private methods
+def _serializeBoard(board):
+    state = ""
+    for row in board:
+        for col in row:
+            state += col
+    return state
+
+def _deserializeBoard(state):
+    ROWS = COLS = 3
+    board = []
+    count = 0
+    while ROWS > 0:
+        row = []
+        while COLS > 0:
+            row.append(str(state[count]))
+            count += 1
+            COLS -= 1
+        board.append(row)
+        ROWS -= 1
+        COLS = 3
+    return board
+
+# This REST call is purely for debugging
 @app.route('/players')
 def getPlayers():
-    """   Return all the possible slash commands required to play the game   """
+    """   Return the results of the coin toss   """
     global currentGame, slackResponse
     challenger = "@"+slackResponse['user_name']
     opponent = slackResponse['text']
     (firstPlayer, secondPlayer) = currentGame.determineFirstMove(challenger, opponent)
     return "{0} goes first, {1} goes second".format(firstPlayer, secondPlayer)
 
+# This REST call is purely for debugging
+# Use it with caution!!
 @app.route('/tictactoe-reset')
 def reset():
-    """   Return all the possible slash commands required to play the game   """
+    """   Reset the game   """
     global currentGame, serialized_state, challenger, opponent, slackResponse
     print request.data
     ndb.delete_multi(State.query().fetch(keys_only=True))
@@ -325,6 +295,7 @@ def reset():
     if serialized_state is not None: serialized_state = None
     return "Game States cleared" # This is to be modified with an accept/reject attachment
 
+# Error Handling
 @app.errorhandler(404)
 def page_not_found(e):
     """Return a custom 404 error."""
