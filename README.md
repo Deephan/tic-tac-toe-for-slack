@@ -13,7 +13,7 @@ The deployed version of the application is active on google cloud and the url is
 Please note that it may be possible execute the game locally as long as the same [slack commands](https://api.slack.com/slash-commands) are registered with the proper action url and if slack can communicate with the locally hosted web application. 
 
 The game can still be executed stand-alone **without** starting the web application by running it as local python program.
-To do this navigate to _application/tictactoe_** in your local installation and run the game locally
+To do this navigate to **_application/tictactoe_** in your local installation and run the game locally
 
 
 
