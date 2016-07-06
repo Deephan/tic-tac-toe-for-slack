@@ -82,7 +82,7 @@ class MessageBuilder:
     }
 
     def getMsg(self, state):
-        msg = None
+        _msg = None
         if state is "ga": msg = self._responses_["GAME_ACTIVE"]
         if state is "gi": msg = self._responses_["GAME_INACTIVE"]
         if state is "im": msg = self._responses_["INVALID_MOVE"]
@@ -100,7 +100,7 @@ class MessageBuilder:
         if state is "next" : msg = self._responses_["NEXT_TURN"]
         if state is "accept" : msg = self._responses_["ACCEPT"]
         if state is "reject" : msg = self._responses_["REJECT"]
-        return msg
+        return _msg
 
 class SlackResponseBuilder:
 
