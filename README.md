@@ -6,6 +6,8 @@ To execute the project follow the same instructions on the link above. Please be
 
 The deployed version of the application is active on google cloud and the url is not exposed here for security reasons. Slack has been integrated with the deployed application's web url for internally executing the slash commands.
 
+#### Game commands for Tic-Tac-Toe
+
 ![alt text] (https://github.com/Deephan/tic-tac-toe-for-slack/blob/master/Slack-TicTacToe-Help.png "Slack-TicTacToe commands")
 
 Please note that it may be possible execute the game locally as long as the same [slack commands](https://api.slack.com/slash-commands) are registered with the proper action url and if slack can communicate with the locally hosted web application. 
