@@ -88,6 +88,7 @@ def reject():
 
 @app.route('/tictactoe-challenge', methods = ['POST'])
 def api_message():
+    """   Challenge an opponent for a game of Tic-Tac-Toe and return the pending message   """
     global resp, slackResponse, currentGame, serialized_state, challenger, opponent, message, srb
     status = None
     obj = {"response_type": "ephemeral"}
@@ -112,6 +113,7 @@ def api_message():
 # TO DO: merge routes
 @app.route('/tictactoe-play', methods = ['POST'])
 def place():
+    """   Place a mark at the specific position and returns who play the next move or game result  """
     global resp, slackResponse, currentGame, serialized_state, message, srb
     return_msg = None
     challenger = None
