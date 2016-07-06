@@ -20,7 +20,6 @@ class Board:
         ]
         self.rows = 3
         self.cols = 3
-        print "Board Created"
         return
 
     def __str__(self):
@@ -59,7 +58,6 @@ class Board:
         """   Sets a cross at the designated position on the Board   """
         row = (position / self.rows) - 1 if (position % self.rows) == 0 else (position / self.rows)
         col = (self.cols - 1) if (position % self.rows) == 0 else (position % self.rows) - 1
-        print " position: ", position
         self.board[row][col] = 'X'
         return
 
@@ -67,7 +65,6 @@ class Board:
         """   Sets a circle at the designated position on the Board   """
         row = (position / self.rows) - 1 if (position % self.rows) == 0 else (position / self.rows)
         col = (self.cols - 1) if (position % self.rows) == 0 else (position % self.rows) - 1
-        print " position: ", position
         self.board[row][col] = 'O'
         return
 
