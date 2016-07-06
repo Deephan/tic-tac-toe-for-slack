@@ -5,6 +5,8 @@ from flask import jsonify
 from google.appengine.ext import ndb
 from application.tictactoe.game import Game
 from application.tictactoe.player import Player
+from application.tictactoe.utils import MessageBuilder
+from application.tictactoe.utils import SlackResponseBuilder
 # Note: We don't need to call run() since our application is embedded within
 # the App Engine WSGI application server.
 
@@ -16,7 +18,8 @@ currentGame = None
 serialized_state = None
 challenger = None
 opponent = None
-
+message = MessageBuilder()
+srb = SlackResponseBuilder()
 
 # TO DO: Needs to be moved to the datastore module
 class State(ndb.Model):
@@ -34,7 +37,7 @@ def hello():
 @app.route('/tictactoe-accept', methods = ['POST'])
 def accept():
     """   Accept the Tic-Tac-Toe Challenge   """
-    global currentGame, serialized_state, resp, slackResponse
+    global currentGame, serialized_state, resp, slackResponse, message, srb
     obj = {"response_type": "ephemeral"}
     status = None
     challenger = None
@@ -42,106 +45,85 @@ def accept():
     if slackResponse is not None:
         challenger = "@"+slackResponse['user_name']
         opponent = None if slackResponse['text'] is "" else slackResponse['text']
-    resp = request.form
-    response_str="%s" % resp
-    lst = []
-    for st in response_str[20:-2].split(","):
-        lst.append(st.replace("(","").replace(")","").replace("u'","").replace("'","").lstrip())
-    Response = {lst[i]:lst[i+1] for i in range(0, len(lst), 2)}
+    Response = srb.getSlackResponse(request.form)
     username = '@' + Response['user_name']
     if currentGame is None and challenger is not None and opponent is not None:
         serialized_state = "#########" # Initial state of the game. Is this needed?
         currentGame = Game()
         if username == opponent :
-            accept_txt = opponent + " has accepted " + challenger + "'s challenge!\n\nDetermine who goes first by a coin toss..\n\n"
+            accept_txt = message.getMsg("accept").format(opponent, challenger)
             status = currentGame.startNewGame(challenger, opponent)
             status = accept_txt + status
             obj["response_type"] = "in_channel"
     elif currentGame is not None and challenger is not None and opponent is not None:
-        status = "Game in progress...\n\n"
-        status += "You can either choose to \n\n\t"
-        status += "(a) Use /tictactoe-status to get the status of the game\n\n\t"
-        status += "(b) Challenge an opponent after the current game completes.\n\nSlack /tictactoe-help for more details."
+        status = message.getMsg("ga")
     else :
-        status = "Invalid Command..\n\nChallenge a slack user to start a new game.\n\n/tictactoe-challenge @user\n\n@user has to be on Slack!"
+        status = message.getMsg("iagi")
     obj["text"] = status
+    obj["mrkdwn"] = "true"
     return jsonify(obj)
 
 @app.route('/tictactoe-reject', methods = ['POST'])
 def reject():
     """   Reject the Tic-Tac-Toe Challenge  """
-    global currentGame, resp, slackResponse
+    global currentGame, resp, slackResponse, message, srb
     status = None
     obj = {"response_type": "ephemeral"}
-    resp = request.form
-    response_str="%s" % resp
-    lst = []
     challenger = None
     opponent = None
     if slackResponse is not None:
         challenger = "@"+slackResponse['user_name']
         opponent = None if slackResponse['text'] is "" else slackResponse['text']
-    for st in response_str[20:-2].split(","):
-        lst.append(st.replace("(","").replace(")","").replace("u'","").replace("'","").lstrip())
-    Response = {lst[i]:lst[i+1] for i in range(0, len(lst), 2)}
+    Response = srb.getSlackResponse(request.form)
     username = '@' + Response['user_name']
     if currentGame is not None and challenger is not None and opponent is not None:
-        status = "Game in progress...\n\n"
-        status += "You can either choose to \n\n\t"
-        status += "(a) Use /tictactoe-status to get the status of the game\n\n\t"
-        status += "(b) Challenge an opponent after the current game completes.\n\nSlack /tictactoe-help for more details."
+        status = message.getMsg("ga")
     elif currentGame is None and challenger is not None and opponent is not None:
         if opponent == username:
-            status = opponent + " has rejected " + challenger + "'s challenger request!\n\nFloor is open for a new challenge!'"
+            status = message.getMsg("reject").format(opponent, challenger)
         reset()
         obj["response_type"] = "in_channel"
     else:
-        status = "Invalid Command..\n\nChallenge a slack user to start a new game.\n\n/tictactoe-challenge @user\n\n@user has to be on Slack!"
+        status = message.getMsg("iagi")
     obj["text"] = status
     return jsonify(obj)
 
 @app.route('/tictactoe-challenge', methods = ['POST'])
 def api_message():
-    """   Challenge an opponent for a game of Tic-Tac-Toe  """
-    global resp, slackResponse, currentGame, serialized_state, challenger, opponent
+    global resp, slackResponse, currentGame, serialized_state, challenger, opponent, message, srb
     status = None
     obj = {"response_type": "ephemeral"}
-    if currentGame is None:
-        resp = request.form
-        response_str="%s" % resp
-        lst = []
-        for st in response_str[20:-2].split(","):
-            lst.append(st.replace("(","").replace(")","").replace("u'","").replace("'","").lstrip())
-        slackResponse = {lst[i]:lst[i+1] for i in range(0, len(lst), 2)}
-        challenger = "@"+slackResponse['user_name']
+    if currentGame is None and challenger is None and opponent is None:
+        slackResponse = srb.getSlackResponse(request.form)
+        #  USE CASE: When an user challenges nobody
         opponent = None if slackResponse['text'] is "" else slackResponse['text']
+        #  USE CASE: When there is no opponent do not set the challenger
+        if opponent is not None : challenger = "@"+slackResponse['user_name']
+        #  USE CASE: When there is a challenger and an opponent print the challenge status
         if opponent is not None and challenger is not None:
             obj["response_type"] = "in_channel"
-            status = challenger +" has challenged "+ opponent + " to a game of Tic-Tac-Toe!\n\n " + opponent + "'s decision is pending..."
+            status = message.getMsg("pending").format(challenger, opponent, opponent)
         else:
-            status = "Challenge a slack user to start a new game.\n\n/tictactoe-challenge @user\n\n@user has to be on Slack!"
+        #  USE CASE: When there is no game in progress print the inactive status message for an incoming challenge
+            status = message.getMsg("gi")
     else :
-        status = "Game in progress...\n\n"
-        status += "You can either choose to \n\n\t"
-        status += "(a) Use /tictactoe-status to get the status of the game\n\n\t"
-        status += "(b) Challenge an opponent after the current game completes.\n\nSlack /tictactoe-help for more details."
+        status = message.getMsg("ga")
     obj["text"] = status
     return jsonify(obj)
 
 # TO DO: merge routes
 @app.route('/tictactoe-play', methods = ['POST'])
 def place():
-    """   Start playing Tic-Tac-Toe by specifying position   """
-    global resp, slackResponse, currentGame, serialized_state
-    return_msg = "Not sure what the problem is.. Check the code."
-    obj = {"response_type": "in_channel","text": return_msg}
+    global resp, slackResponse, currentGame, serialized_state, message, srb
+    return_msg = None
+    challenger = None
+    opponent = None
+    if slackResponse is not None:
+        challenger = "@"+slackResponse['user_name']
+        opponent = None if slackResponse['text'] is "" else slackResponse['text']
+    obj = {"response_type": "ephemeral"}
     if currentGame is not None and currentGame.isGameComplete() is not True:
-        response_str = "%s" % str(request.form)
-        lst = []
-        print response_str
-        for st in response_str[20:-2].split(", "):
-            lst.append(st.replace("(","").replace(")","").replace("u'","").replace("'","").lstrip())
-        slackResponse = {lst[i]:lst[i+1] for i in range(0, len(lst), 2)}
+        slackResponse = srb.getSlackResponse(request.form)
         username = '@'+slackResponse['user_name']
         position = slackResponse['text']
         query = State.query()
@@ -151,61 +133,61 @@ def place():
         # pass the board to play before you can serialize the current state
         if len(states) > 0:
             for state in states:
-                lastState = _deserializeBoard(state.board)
+                lastState = deserializeBoard(state.board)
                 turns = state.moves
         else:
             lastState = [['#','#','#'],['#','#','#'],['#','#','#']]
             turns = 9
         if username == currentGame.getCurrentPlayer(): # BUG: Replacing == with "is" doesn't work
             if not currentGame.isMoveValid(position) :
-                obj["response_type"] = "ephemeral"
-                return_msg = "Please make a valid move..\n\n/tictactoe-play position\n\nposition can be from 1 to 9\n\n"
+                return_msg = message.getMsg("im")
             elif not currentGame.isMoveAllowed(position) :
-                obj["response_type"] = "ephemeral"
-                return_msg = "This position has been played already..\n\n/tictactoe-status to see the current state of the game\n\nPlease make a move that is allowed\n\n"
+                return_msg = message.getMsg("mna")
             else:
+                obj["response_type"] = "in_channel"
                 currentState = currentGame.play(position, lastState, turns)
                 turns -= 1
-                serialized_state = _serializeBoard(currentState)
+                serialized_state = serializeBoard(currentState)
                 State(board = serialized_state, moves = turns).put()
-                return_msg = getStatus(False)
-                if currentGame.isGameComplete() is True or turns == 0:
-                    return_msg += "\n\n"+currentGame.declareResult()
-                    reset()
+                return_msg = getStatus(False, turns)
         else : # Its not current user's turn
-            obj["response_type"] = "ephemeral"
-            return_msg = "This turn belongs to " + currentGame.getCurrentTurn()+ "!"
+            return_msg = message.getMsg("turn").format(currentGame.getCurrentTurn())
     else :
-        obj["response_type"] = "ephemeral"
-        return_msg = "Sorry, no moves allowed!\n\nChallenge an opponent to start a new game!\n\nSlack /tictactoe-help for more details."
+        if challenger is not None and opponent is not None :
+            return_msg = message.getMsg("icga")
+        else:
+            return_msg = message.getMsg("icgi")
     obj["text"] = "%s" % return_msg
     return jsonify(obj)
 
 @app.route('/tictactoe-status', methods = ['POST'])
-def getStatus(returnjson=True):
+def getStatus(returnjson=True, *args):
     """   Returns the current status of the board and also the next player to make the move   """
-    global currentGame, serialized_state, challenger, opponent
+    global currentGame, serialized_state, challenger, opponent, message
     status = None
+    turns = None
+    if args: turns = args[0]
     obj = {"response_type": "in_channel" if returnjson is False else "ephemeral"}
     if currentGame is not None and serialized_state is not None:
         status = "Current State of the game\n\n\n\t\t\t "
-        status += currentGame.getCurrentTurn() + "\t plays \t"+ currentGame.getNextTurn() + "\n\n\n\t\t\t\t\t\t"
-        status += "========= \n\t\t\t\t\t\t |  {}  |  {}  |  {}  |\n\t\t\t\t\t\t"
-        status += " =========\n\t\t\t\t\t\t|  {}  |  {}  |  {}  |\n\t\t\t\t\t\t"
-        status += " =========\n\t\t\t\t\t\t|  {}  |  {}  |  {}  |\n\t\t\t\t\t\t =========\n\n\n\n"
+        status += message.getMsg("vs").format(currentGame.getCurrentTurn(), currentGame.getNextTurn())
+        status += message.getMsg("raw")
         status = status.format(*serialized_state)
-        status += "\t\t\t%s makes the next move!"
         # This is a BUG!
         # This might be counter intuitive, but status is called after play
         # When play had already been called the next and current players have already been swapped
-        status = status % currentGame.getCurrentTurn()
+        if currentGame.isGameComplete() is True or turns == 0:
+            status += message.getMsg("result").format(currentGame.declareResult())
+            reset()
+        else :
+            status += message.getMsg("next").format(currentGame.getCurrentTurn())
     elif currentGame is None and challenger is not None and opponent is not None:
         obj["response_type"] = "ephemeral"
-        status = challenger +" has challenged "+ opponent + " to a game of Tic-Tac-Toe!\n\n " + opponent + "'s decision pending..."
+        status = message.getMsg("pending").format(challenger, opponent, opponent)
         obj["text"] = status
     else :
         obj["response_type"] = "ephemeral"
-        status = "No games in progress..\n\nChallenge an opponent to start a new game!\n\nSlack /tictactoe-help for more details."
+        status = message.getMsg("cgi")
     obj["text"] = status
     json_response = jsonify(obj)
     return json_response if returnjson is True else status
@@ -213,20 +195,8 @@ def getStatus(returnjson=True):
 @app.route('/tictactoe-help', methods = ['POST'])
 def help():
     """   Return the help documentation string for the game   """
-    doc_str = "\n\n\t\t\tFormat of the Board for Tic-Tac-Toe \n\n\n\t\t\t\t\t\t"
-    doc_str += " =========\n\t\t\t\t\t\t|  1  |  2  |  3  |\n\t\t\t\t\t\t"
-    doc_str += " =========\n\t\t\t\t\t\t|  4  |  5  |  6  |\n\t\t\t\t\t\t"
-    doc_str += " =========\n\t\t\t\t\t\t|  7  |  8  |  9  |\n\t\t\t\t\t\t"
-    doc_str += " =========\n\n\n"
-    doc_str += "* Each number denotes the positions on the Tic-Tac-Toe Board\n\n"
-    doc_str += "* Players alternate placing X's and O's on the Board\n\n"
-    doc_str += "* Placing three of a player marks in a horizontal, vertical, or diagonal row wins the game\n\n"
-    doc_str += "Game Commands:\n\n\t\t\t(i)    /tictactoe-challenge @user (To challenge @user for a game)\n\n\t\t\t"
-    doc_str += "(ii)   /tictactoe-play position (To mark the available position)\n\n\t\t\t"
-    doc_str += "(iii)  /tictactoe-status (To get the current status of the game)\n\n\t\t\t"
-    doc_str += "(iv)  /tictactoe-accept (To accept the challenge)\n\n\t\t\t"
-    doc_str += "(v)   /tictactoe-reject (To reject the challenge)\n\n"
-    doc_str = "%s" % doc_str
+    global message
+    doc_str = "%s" % message.getMsg("help")
     return jsonify({"response_type": "in_channel","text": doc_str})
 
 @app.route('/currentMove')
