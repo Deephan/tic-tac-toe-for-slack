@@ -82,25 +82,26 @@ class MessageBuilder:
     }
 
     def getMsg(self, state):
-        _msg = None
-        if state is "ga": msg = self._responses_["GAME_ACTIVE"]
-        if state is "gi": msg = self._responses_["GAME_INACTIVE"]
-        if state is "im": msg = self._responses_["INVALID_MOVE"]
-        if state is "mna": msg = self._responses_["MOVE_NOT_ALLOWED"]
-        if state is "icga": msg = self._responses_["INVALID_COMMAND_GAME_ACTIVE"]
-        if state is "icgi": msg = self._responses_["INVALID_COMMAND_GAME_INACTIVE"]
-        if state is "cgi": msg = self._responses_["CHALLENGE_GAME_INACTIVE"]
-        if state is "iagi": msg = self._responses_["INVALID_ACCEPT_GAME_INACTIVE"]
-        if state is "help": msg = self._responses_["HELP"]
-        if state is "raw": msg = self._responses_["RAW_STATE"]
-        if state is "vs" : msg = self._responses_["VERSUS"]
-        if state is "pending" : msg = self._responses_["PENDING"]
-        if state is "turn" : msg = self._responses_["TURN"]
-        if state is "result" : msg = self._responses_["RESULT"]
-        if state is "next" : msg = self._responses_["NEXT_TURN"]
-        if state is "accept" : msg = self._responses_["ACCEPT"]
-        if state is "reject" : msg = self._responses_["REJECT"]
-        return _msg
+        """   Return status and response messages   """
+        return {
+                "ga"      : self._responses_["GAME_ACTIVE"],
+                "gi"      : self._responses_["GAME_INACTIVE"],
+                "im"      : self._responses_["INVALID_MOVE"],
+                "mna"     : self._responses_["MOVE_NOT_ALLOWED"],
+                "icga"    : self._responses_["INVALID_COMMAND_GAME_ACTIVE"],
+                "icgi"    : self._responses_["INVALID_COMMAND_GAME_INACTIVE"],
+                "cgi"     : self._responses_["CHALLENGE_GAME_INACTIVE"],
+                "iagi"    : self._responses_["INVALID_ACCEPT_GAME_INACTIVE"],
+                "help"    : self._responses_["HELP"],
+                "raw"     : self._responses_["RAW_STATE"],
+                "vs"      : self._responses_["VERSUS"],
+                "pending" : self._responses_["PENDING"],
+                "turn"    : self._responses_["TURN"],
+                "result"  : self._responses_["RESULT"],
+                "next"    : self._responses_["NEXT_TURN"],
+                "accept"  : self._responses_["ACCEPT"],
+                "reject"  : self._responses_["REJECT"]
+        }.get(state)
 
 class SlackResponseBuilder:
 
