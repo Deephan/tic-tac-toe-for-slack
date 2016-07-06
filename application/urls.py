@@ -133,7 +133,7 @@ def place():
         # pass the board to play before you can serialize the current state
         if len(states) > 0:
             for state in states:
-                lastState = deserializeBoard(state.board)
+                lastState = _deserializeBoard(state.board)
                 turns = state.moves
         else:
             lastState = [['#','#','#'],['#','#','#'],['#','#','#']]
@@ -147,7 +147,7 @@ def place():
                 obj["response_type"] = "in_channel"
                 currentState = currentGame.play(position, lastState, turns)
                 turns -= 1
-                serialized_state = serializeBoard(currentState)
+                serialized_state = _serializeBoard(currentState)
                 State(board = serialized_state, moves = turns).put()
                 return_msg = getStatus(False, turns)
         else : # Its not current user's turn
