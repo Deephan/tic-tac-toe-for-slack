@@ -1,10 +1,13 @@
 # tic-tac-toe-for-slack
 
-This project is created from the google's  [appengine-flask-skeleteon](https://github.com/GoogleCloudPlatform/appengine-flask-skeleton#python-flask-skeleton-for-google-app-engine) as the game is hosted on google cloud.
+This project is created from google's  [appengine-flask-skeleteon](https://github.com/GoogleCloudPlatform/appengine-flask-skeleton#python-flask-skeleton-for-google-app-engine) as the game is hosted on google cloud.
 
 To execute the project follow the same instructions on the link above. Please be cautioned as the game may not execute properly as the datastore is on the google cloud and it may require appropriate login credentials for the game to execute.
 
 The deployed version of the application is active on google cloud and the url is not exposed here for security reasons. Slack has been integrated with the deployed application's web url for internally executing the slash commands.
+
+To play the game within slack join the team **deephanmohan85test0.slack.com** and you can play the game in the **#tic-tac-toe** channel.
+If you are unable to join the team kindly reach out to me. I can send you an invite as long as the team is actively moderated by slack. 
 
 #### Game commands for Tic-Tac-Toe
 
