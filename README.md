@@ -9,7 +9,7 @@ The deployed version of the application is active on google cloud and the url is
 To play the game within slack join the team **deephanmohan85test0.slack.com** and you can play the game in the **#tic-tac-toe** channel.
 If you are unable to join the team kindly reach out to me. I can send you an invite as long as the team is actively moderated by slack. 
 
-#### Game commands for Tic-Tac-Toe
+#### Game commands for Tic-Tac-Toe (Slack /tictactoe-help when you are on the appropriate team)
 
 ![alt text] (https://github.com/Deephan/tic-tac-toe-for-slack/blob/master/Slack-TicTacToe-Help.png "Slack-TicTacToe commands")
 
