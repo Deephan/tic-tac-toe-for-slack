@@ -1,0 +1,26 @@
+<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+
+  <rect x="10" y="10" rx="10" ry="10" width="270" height="270" stroke="black" fill="transparent" stroke-width="5"/>
+
+  <line stroke-linecap="round" x1="10" x2="280" y1="100" y2="100" stroke="#80e5ff" fill="transparent" stroke-width="10"/>
+  <line stroke-linecap="round" x1="10" x2="280" y1="190" y2="190" stroke="#cc0066" fill="transparent" stroke-width="10"/>
+  <line stroke-linecap="round" x1="100" x2="100" y1="10" y2="280" stroke="#00802b" fill="transparent" stroke-width="10"/>
+  <line stroke-linecap="round" x1="190" x2="190" y1="10" y2="280" stroke="#ffb31a" fill="transparent" stroke-width="10"/>
+
+
+  <line stroke-linecap="round" x1="35" x2="75" y1="35" y2="75" stroke="brown" fill="transparent" stroke-width="5"/>
+  <line stroke-linecap="round" x1="35" x2="75" y1="75" y2="35" stroke="brown" fill="transparent" stroke-width="5"/>
+  <line stroke-linecap="round" x1="35" x2="75" y1="125" y2="165" stroke="brown" fill="transparent" stroke-width="5"/>
+  <line stroke-linecap="round" x1="35" x2="75" y1="165" y2="125" stroke="brown" fill="transparent" stroke-width="5"/>
+  <line stroke-linecap="round" x1="125" x2="165" y1="215" y2="255" stroke="brown" fill="transparent" stroke-width="5"/>
+  <line stroke-linecap="round" x1="125" x2="165" y1="255" y2="215" stroke="brown" fill="transparent" stroke-width="5"/>
+  <line stroke-linecap="round" x1="215" x2="255" y1="125" y2="165" stroke="brown" fill="transparent" stroke-width="5"/>
+  <line stroke-linecap="round" x1="215" x2="255" y1="165" y2="125" stroke="brown" fill="transparent" stroke-width="5"/>
+
+  <circle cx="145" cy="145" r="25" fill="white" stroke="grey" stroke-width="5"/>
+  <circle cx="55" cy="235" r="25" fill="white" stroke="grey" stroke-width="5"/>
+  <circle cx="235" cy="235" r="25" fill="white" stroke="grey" stroke-width="5"/>
+  <circle cx="145" cy="55" r="25" fill="white" stroke="grey" stroke-width="5"/>
+  <circle cx="235" cy="55" r="25" fill="white" stroke="grey" stroke-width="5"/>
+
+</svg>
