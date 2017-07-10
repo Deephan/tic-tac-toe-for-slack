@@ -2,7 +2,7 @@
 
 This project is created from google's  [appengine-flask-skeleteon](https://github.com/GoogleCloudPlatform/appengine-flask-skeleton#python-flask-skeleton-for-google-app-engine) as the game is hosted on google cloud.
 
-To execute the project follow the same instructions on the link above. Please be cautioned as the game may not execute properly as the datastore is on the google cloud and it may require appropriate login credentials for the game to execute.
+To execute the project follow the same instructions on the link above. Please be cautioned as the game may not execute properly unless the appropriate login credentials are provided and since the datastore is on the google cloud.
 
 The deployed version of the application is active on google cloud and the url is not exposed here for security reasons. Slack has been integrated with the deployed application's web url for internally executing the slash commands.
 
