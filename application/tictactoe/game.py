@@ -93,7 +93,7 @@ class Game:
             return
 
         def evaluateColumns():
-            """   Evaluates each row in the matrix for a win   """
+            """   Evaluates each column in the matrix for a win   """
             for sign in players:
                 for col in mat.cols():
                     win = True
