@@ -234,7 +234,7 @@ def _deserializeBoard(state):
         COLS = 3
     return board
 
-# This REST call is purely for debugging
+# This REST call is only for debugging
 @app.route('/players')
 def getPlayers():
     """   Return the results of the coin toss   """
@@ -244,7 +244,7 @@ def getPlayers():
     (firstPlayer, secondPlayer) = currentGame.determineFirstMove(challenger, opponent)
     return "{0} goes first, {1} goes second".format(firstPlayer, secondPlayer)
 
-# This REST call is purely for debugging
+# This REST call is only for debugging
 # Use it with caution!!
 @app.route('/tictactoe-reset')
 def reset():
